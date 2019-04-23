@@ -1,54 +1,56 @@
 /* eslint-disable no-console */
 const pg = require('pg');
+const dotenv = require('dotenv');
+
+dotenv.config();
 // import table queries
 const {
-  transactionTable,
-  usersTable,
-  bankAccountTable,
+  tables,
 } = require('./schemas');
 
 // Database configurations
-const config = {
-  user: 'postgres',
-  database: process.env.DATABASE || 'banka',
-  password: process.env.PASSWORD || 'Kp15712Kp',
-  port: process.env.DB_PORT || 5432,
-  max: 10, // max number of clients in the pool
-  idleTimeoutMillis: 30000,
-};
-
-const pool = new pg.Pool(config);
+const { DATABASE_URL, DATABASE } = process.env;
+let connectionString;
+if (DATABASE_URL) {
+  connectionString = DATABASE_URL; // Heroku db or test db
+  console.log(DATABASE_URL);
+} else {
+  connectionString = {
+    user: 'postgres',
+    database: DATABASE || 'banka',
+    password: 'Kp15712Kp',
+    port: 5432,
+    max: 10, // max number of clients in the pool
+  };
+}
+const pool = new pg.Pool(connectionString);
 
 pool.on('connect', () => {
   console.log('connected to the Database');
 });
 
-// Create table by run the above queries
+// Create table by running the tables query
 const createTables = () => {
-  [usersTable, bankAccountTable, transactionTable].forEach((table) => {
-    pool.query(table)
-      .then((res) => {
-        console.log(res);
-        pool.end();
-      })
-      .catch((err) => {
-        console.log(err);
-        pool.end();
-      });
-  });
+  pool.query(tables)
+    .then()
+    .catch(e => console.log(e));
 };
 
+const tearDown = () => {
+  const sql = 'TRUNCATE TABLE users CASCADE';
 
-pool.on('remove', () => {
-  console.log('client removed');
-  process.exit(0);
-});
-
+  pool.query(sql)
+    .then(() => {
+      pool.end();
+    })
+    .catch(e => console.log(e));
+};
 
 // export pool and createTables to be accessible  from an where within the application
 module.exports = {
   createTables,
   pool,
+  tearDown,
 };
 
 require('make-runnable');
