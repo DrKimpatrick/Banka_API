@@ -11,7 +11,7 @@ exports.signup_user_1 = {
   lastName: 'KImanje',
   password,
   type: 'client',
-  isAdmin: false,
+  isAdmin: 'false',
 };
 
 // user with missing fields

@@ -2,9 +2,11 @@
 const express = require('express');
 // Import Body parser
 const bodyParser = require('body-parser');
+const dotenv = require('dotenv');
 // import router
 const apiRoutes = require('./api-routes');
 
+dotenv.config();
 
 // Initialize the app
 const app = express();

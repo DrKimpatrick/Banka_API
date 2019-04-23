@@ -6,12 +6,12 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "nyc --reporter=html --reporter=text mocha --exit",
+    "drop": "node ./models/db tearDown",
+    "test": "NODE_ENV=testing npm run drop && NODE_ENV=testing npm run create &&  NODE_ENV=testing nyc --reporter=html --reporter=text mocha test/**/*.js --exit",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "lint": "node_modules/.bin/eslint --fix index.js controllers api-routes middleware",
-    "validate": "npm-run-all --parallel test lint",
-    "pre-commit": "npm run validate",
-    "pre-push": "npm run validate",
+    "pre-commit": "npm run lint",
+    "pre-push": "npm run lint",
     "create": "node ./models/db createTables"
   },
   "husky": {
@@ -47,6 +47,7 @@
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
     "chai-http": "^4.2.1",
+    "dotenv": "^7.0.0",
     "express": "^4.16.4",
     "istanbul": "^0.4.5",
     "jsonwebtoken": "^8.5.1",
