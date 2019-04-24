@@ -1,16 +1,11 @@
 /* eslint-disable consistent-return */
-// Import Bank account database
-const { bankAccount } = require('../../models');
-// Current user information
 const utils = require('./utils');
-
-const datetime = new Date();
-
+const db = require('../../db');
 // Generate a bank account number, a nine character number
 const accountGenerator = () => Math.floor(Math.random() * 1000000000);
 
 // Create bank account
-const createBankAccount = (req, res) => {
+const createBankAccount = async (req, res) => {
   const { type } = req.body;
   // Email and Password are required
   if (!type) {
@@ -31,47 +26,31 @@ const createBankAccount = (req, res) => {
     });
   }
 
-  // generate user id basing on list length
-  const accountId = bankAccount.length + 1;
-
-  // Bank account details
-  const data = {
-    id: accountId,
-    accountNumber: accountGenerator(),
-    createdOn: datetime,
-    owner: req.userId,
-    status: 'active',
-    type,
-    balance: 0.00,
-    transactionHistory: [],
-  };
-
   // Getting the current user object
-  const user = utils.currentUser(req.userId);
+  const user = await utils.currentUser(req.userId);
+  // Create bank account
+  const query = `INSERT INTO accounts(
+    type,
+    accountNumber,
+    userId) 
+    VALUES ($1, $2, $3) RETURNING *`;
+  const values = [type, accountGenerator(), req.userId];
 
-  if (!user) {
-    // It is possible to have no user object but with valid token Forexample if header
-    // contains a token with id of user not existing because user list was reset
-    return res.status(401).json({
-      status: 401,
-      error: 'Token has expired, please login again!',
-    });
-  }
-  // add create bank account
-  bankAccount.push(data);
+  const { rows } = await db.query(query, values);
+
 
   // account response
   return res.status(201).json({
     status: 201,
     data: {
-      accountNumber: data.accountNumber,
-      createdOn: data.createdOn,
-      status: data.status,
-      type: data.type,
-      firstName: user.firstName,
-      lastName: user.lastName,
+      accountNumber: rows[0].accountnumber,
+      createdOn: rows[0].createdon,
+      status: rows[0].status,
+      type: rows[0].type,
+      firstName: user.firstname,
+      lastName: user.lastname,
       email: user.email,
-      openingBalance: data.balance,
+      openingBalance: rows[0].balance,
     },
   });
 };
