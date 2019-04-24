@@ -1,16 +1,23 @@
 /* eslint-disable consistent-return */
-// Import User account database
-const { users } = require('../../models');
+
+// Database connection
+const { pool } = require('../../db');
 
 // Current user data
-exports.currentUser = (id) => {
-  let userData = null;
-  users.forEach((user) => {
-    if (user.id === id) {
-      userData = user;
-    }
+exports.currentUser = (id, res) => {
+  pool.connect((err, client) => {
+    const query = 'SELECT * FROM users WHERE id = $1';
+    client.query(query, [id], (error, result) => {
+      // eslint-disable-next-line prefer-destructuring
+      if (result.rows.length === 0) {
+        return res.status(401).json({
+          status: 401,
+          error: 'Access denied, invalid token',
+        });
+      }
+      return result.rows[0];
+    });
   });
-  return userData;
 };
 
 // Restrict access to only staff/admin

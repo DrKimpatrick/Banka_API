@@ -4,8 +4,7 @@ const bcrypt = require('bcryptjs');
 // import token generator
 const middleware = require('../../middleware');
 
-// Database connection
-const { pool } = require('../../models/db');
+const db = require('../../db');
 
 
 const checkName = (name, res) => {
@@ -40,30 +39,17 @@ const checkPassword = (password, res) => {
   }
 };
 
-// Type should be client / staff
-const checkUserType = (userType, res) => {
-  const userTypes = ['client', 'staff'];
-
-  const isTrue = userTypes.indexOf(userType);
-  if (isTrue < 0) {
-    return res.status(400).json({
-      status: 400,
-      error: 'Type should either be client / staff',
-    });
-  }
-};
-
 // create user account
-exports.signup = (req, res) => {
+exports.signup = async (req, res) => {
   const {
-    email, firstName, lastName, password, type, isAdmin,
+    email, firstName, lastName, password,
   } = req.body;
 
   // Email and Password are required
-  if (!email || !password || !type || !firstName) {
+  if (!email || !password || !firstName) {
     return res.status(400).json({
       status: 400,
-      error: 'Email, Password, firstName and user type are required !',
+      error: 'Email, Password and firstName are required !',
     });
   }
   // format firstName and lastName
@@ -92,28 +78,6 @@ exports.signup = (req, res) => {
     return checkPassword(password, res);
   }
 
-  // Type should be client / staff
-  const userType = type.toLowerCase();
-  if (checkUserType(userType, res)) {
-    return checkUserType(type, res);
-  }
-
-  // isAdmin should be [false/true]
-  const booln = ['false', 'true'];
-  const admin = isAdmin ? isAdmin.toLowerCase() : 'false';
-  const result = booln.indexOf(admin);
-  if (result < 0) {
-    return res.status(400).json({
-      status: 400,
-      error: 'isAdmin should be set to true/false',
-    });
-  }
-
-  let isAdminTrue = admin;
-  if (type === 'client') {
-    isAdminTrue = false;
-  }
-
   // hashpassword
   const hashedPassword = bcrypt.hashSync(password, 8);
 
@@ -123,63 +87,42 @@ exports.signup = (req, res) => {
     firstName: fisrtN,
     lastName: lastN,
     password: hashedPassword,
-    type: userType,
-    isAdmin: isAdminTrue,
   };
+
   // Email should be unique. 1st check if user with the above email already exists
-
-  pool.connect((err, client, done) => {
-    const query = 'SELECT * FROM users WHERE email = $1';
-    client.query(query, [email], (error, result) => {
-      done();
-      if (error) {
-        return res.status(400).json({
-          status: 400,
-          error,
-        });
-      }
-      if (result.rows.length > 0) {
-        return res.status(404).send({
-          status: '400',
-          message: 'Email already exists, please try another',
-        });
-      }
-
-      // Insert new user in the databas
-      const query = `INSERT INTO users(
-        email, 
-        firstName, 
-        lastName, 
-        password, 
-        type, 
-        isAdmin) 
-        VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`;
-      const values = [data.email, data.firstName,
-        data.lastName, data.password, data.type, data.isAdmin];
-      client.query(query, values, (error, result) => {
-        done();
-        if (error) {
-          return res.status(400).json({
-            status: 400,
-            error,
-          });
-        }
-        const { rows } = result;
-        const row = rows[0];
-        return res.status(202).send({
-          status: 202,
-          data: {
-            token: middleware.token(data.id),
-            id: row.id,
-            firstName: row.firstname,
-            lastName: row.lastname,
-            email: row.email,
-            type: row.type,
-            isAdmin: row.isadmin,
-            createdAt: row.createdat,
-          },
-        });
-      });
+  const query = 'SELECT * FROM users WHERE email = $1';
+  const { rows } = await db.query(query, [email]);
+  if (rows.length > 0) {
+    return res.status(404).send({
+      status: '400',
+      message: 'Email already exists, please try another',
     });
+  }
+
+  // Insert new user in the database
+  const query2 = `INSERT INTO users(
+  email, 
+  firstName, 
+  lastName, 
+  password) 
+  VALUES ($1, $2, $3, $4) RETURNING *`;
+  const values = [data.email, data.firstName,
+    data.lastName, data.password];
+
+  const result = await db.query(query2, values);
+  const row = result.rows[0];
+
+  return res.status(201).send({
+    status: 201,
+    data: {
+      token: middleware.token(data.id),
+      id: row.id,
+      firstName: row.firstname,
+      lastName: row.lastname,
+      email: row.email,
+      type: row.type,
+      isAdmin: row.isadmin,
+      createdAt: row.createdat,
+    },
   });
 };
