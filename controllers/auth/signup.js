@@ -1,10 +1,12 @@
 /* eslint-disable consistent-return */
+/* eslint-disable no-shadow */
 const bcrypt = require('bcryptjs');
 // import token generator
 const middleware = require('../../middleware');
 
-// import user data storage
-const { users } = require('../../models');
+// Database connection
+const { pool } = require('../../models/db');
+
 
 const checkName = (name, res) => {
   // Regular expression for name with spaces allowed in
@@ -112,15 +114,11 @@ exports.signup = (req, res) => {
     isAdminTrue = false;
   }
 
-  // generate user id basing on list length
-  const userId = users.length + 1;
-
   // hashpassword
   const hashedPassword = bcrypt.hashSync(password, 8);
 
   // capture data
   const data = {
-    id: userId,
     email,
     firstName: fisrtN,
     lastName: lastN,
@@ -128,26 +126,60 @@ exports.signup = (req, res) => {
     type: userType,
     isAdmin: isAdminTrue,
   };
-  const doesEmailAlreadyExist = users.some(user => user.email === data.email);
-  if (doesEmailAlreadyExist) {
-    return res.status(400).json({
-      status: 400,
-      error: 'Email already exists, try another',
-    });
-  }
-  users.push(data);
+  // Email should be unique. 1st check if user with the above email already exists
 
-  // return the JWT token for the future API calls
-  return res.status(200).json({
-    status: 200,
-    data: {
-      token: middleware.token(data.id),
-      id: data.id,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      email,
-      type: data.userType,
-      isAdmin: data.isAdmin,
-    },
+  pool.connect((err, client, done) => {
+    const query = 'SELECT * FROM users WHERE email = $1';
+    client.query(query, [data.email], (error, result) => {
+      done();
+      if (error) {
+        return res.status(400).json({
+          status: 400,
+          error,
+        });
+      }
+      if (result.rows.length > 0) {
+        return res.status(404).send({
+          status: '400',
+          message: 'Email already exists, please try another',
+        });
+      }
+
+      // Insert new user in the databas
+      const query = `INSERT INTO users(
+        email, 
+        firstName, 
+        lastName, 
+        password, 
+        type, 
+        isAdmin) 
+        VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`;
+      const values = [data.email, data.firstName,
+        data.lastName, data.password, data.type, data.isAdmin];
+      client.query(query, values, (error, result) => {
+        done();
+        if (error) {
+          return res.status(400).json({
+            status: 400,
+            error,
+          });
+        }
+        const { rows } = result;
+        const row = rows[0];
+        return res.status(202).send({
+          status: 202,
+          data: {
+            token: middleware.token(data.id),
+            id: row.id,
+            firstName: row.firstname,
+            lastName: row.lastname,
+            email: row.email,
+            type: row.type,
+            isAdmin: row.isadmin,
+            createdAt: row.createdat,
+          },
+        });
+      });
+    });
   });
 };
