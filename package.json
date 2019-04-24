@@ -4,7 +4,7 @@
   "description": "A light-weight core banking application that powers banking operations. ",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "NODE_ENV=development node index.js",
     "dev": "nodemon index.js",
     "drop": "node ./models/db tearDown",
     "test": "NODE_ENV=testing npm run drop && NODE_ENV=testing npm run create &&  NODE_ENV=testing nyc --reporter=html --reporter=text mocha test/**/*.js --exit",

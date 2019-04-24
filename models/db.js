@@ -13,7 +13,7 @@ const {
 const createTables = () => {
   pool.query(tables)
     .then()
-    .catch(e => console.log(e));
+    .catch();
 };
 
 const tearDown = () => {
@@ -22,7 +22,7 @@ const tearDown = () => {
   pool.query(sql)
     .then(() => {
     })
-    .catch(e => console.log(e));
+    .catch();
 };
 
 // export pool and createTables to be accessible  from an where within the application

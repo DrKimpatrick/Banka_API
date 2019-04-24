@@ -130,7 +130,7 @@ exports.signup = (req, res) => {
 
   pool.connect((err, client, done) => {
     const query = 'SELECT * FROM users WHERE email = $1';
-    client.query(query, [data.email], (error, result) => {
+    client.query(query, [email], (error, result) => {
       done();
       if (error) {
         return res.status(400).json({
