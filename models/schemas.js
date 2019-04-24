@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS
                 createdOn TIMESTAMP DEFAULT NOW(),
                 updatedOn TIMESTAMP DEFAULT NOW(),
                 userId INTEGER NOT NULL ,
+                type VARCHAR(7) NOT NULL,
                 FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE,
                 status VARCHAR(7) DEFAULT 'active',
                 balance FLOAT DEFAULT 0);

@@ -1,23 +1,13 @@
 /* eslint-disable consistent-return */
 
 // Database connection
-const { pool } = require('../../db');
+const db = require('../../db');
 
 // Current user data
-exports.currentUser = (id, res) => {
-  pool.connect((err, client) => {
-    const query = 'SELECT * FROM users WHERE id = $1';
-    client.query(query, [id], (error, result) => {
-      // eslint-disable-next-line prefer-destructuring
-      if (result.rows.length === 0) {
-        return res.status(401).json({
-          status: 401,
-          error: 'Access denied, invalid token',
-        });
-      }
-      return result.rows[0];
-    });
-  });
+exports.currentUser = async (id) => {
+  const query = 'SELECT * FROM users WHERE id = $1';
+  const { rows } = await db.query(query, [id]);
+  return rows[0];
 };
 
 // Restrict access to only staff/admin
