@@ -13,7 +13,7 @@ const { DATABASE_URL, DATABASE } = process.env;
 let connectionString;
 if (DATABASE_URL) {
   connectionString = DATABASE_URL; // Heroku db or test db
-  console.log(DATABASE_URL);
+  console.log('--------------------------', DATABASE_URL);
 } else {
   connectionString = {
     user: 'postgres',
@@ -23,6 +23,7 @@ if (DATABASE_URL) {
     max: 10, // max number of clients in the pool
   };
 }
+
 const pool = new pg.Pool(connectionString);
 
 pool.on('connect', () => {
