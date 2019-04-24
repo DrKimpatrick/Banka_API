@@ -12,7 +12,7 @@ const SIGNUP_URL = '/api/v1/auth/signup';
 chai.use(chaiHttp);
 chai.should();
 
-const { tearDown, createTables } = require('../models/db');
+const { tearDown, createTables } = require('../models');
 
 describe.only('Login Authentication ', () => {
   beforeEach((done) => {
@@ -31,14 +31,14 @@ describe.only('Login Authentication ', () => {
         .post(SIGNUP_URL)
         .send(base.signup_user_1)
         .end((err, res) => {
-          res.should.have.status(202);
+          res.should.have.status(201);
           res.body.should.be.a('object');
           res.body.should.have.property('status');
           chai.request(app)
             .post(LOGIN_URL)
             .send(base.login_user_1)
             .end((err, resp) => {
-              resp.should.have.status(202);
+              resp.should.have.status(201);
               resp.body.should.be.a('object');
               resp.body.should.have.property('status');
               resp.body.should.have.property('data');

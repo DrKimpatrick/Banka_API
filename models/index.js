@@ -1,20 +1,34 @@
-// User database
-// Format
-// {
-//   id, email, firstName, lastName, password: hashedPassword, type, isAdmin: isAdminTrue,
-// }
-const users = [];
+/* eslint-disable no-console */
+const dotenv = require('dotenv');
+const pool = require('../config');
 
-// Bank account database
-// Format
-// {
-//   id, accountNumber, createdOn, owner, status, type, balance, transactionHistory:{
-//     transactionId: "etry8764789", cashier, transactionType, amount
-//   },
-// }
-const bankAccount = [];
+dotenv.config();
+// import table queries
+const {
+  tables,
+} = require('./schemas');
 
-module.exports = {
-  users,
-  bankAccount,
+
+// Create table by running the tables query
+const createTables = () => {
+  pool.query(tables)
+    .then()
+    .catch();
 };
+
+const tearDown = () => {
+  const sql = 'DROP TABLE IF EXISTS users, accounts, transactions CASCADE';
+
+  pool.query(sql)
+    .then(() => {
+    })
+    .catch();
+};
+
+// export pool and createTables to be accessible  from an where within the application
+module.exports = {
+  createTables,
+  tearDown,
+};
+
+require('make-runnable');

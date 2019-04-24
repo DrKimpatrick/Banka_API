@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS
                 firstName VARCHAR(128) NOT NULL,
                 lastName VARCHAR(128),
                 password TEXT NOT NULL,
-                type VARCHAR(6) NOT NULL,
+                type VARCHAR(6) DEFAULT 'client',
                 isAdmin BOOLEAN DEFAULT FALSE,
                 createdAt TIMESTAMP DEFAULT NOW(),
                 updatedAt TIMESTAMP DEFAULT NOW());
@@ -20,7 +20,6 @@ CREATE TABLE IF NOT EXISTS
                 userId INTEGER NOT NULL ,
                 FOREIGN KEY(userId) REFERENCES users(id) ON DELETE CASCADE,
                 status VARCHAR(7) DEFAULT 'active',
-                type VARCHAR(6) DEFAULT 'client',
                 balance FLOAT DEFAULT 0);
 
 CREATE TABLE IF NOT EXISTS

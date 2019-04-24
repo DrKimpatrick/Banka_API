@@ -6,13 +6,13 @@
   "scripts": {
     "start": "NODE_ENV=development node index.js",
     "dev": "nodemon index.js",
-    "drop": "node ./models/db tearDown",
+    "drop": "node ./models tearDown",
     "test": "NODE_ENV=testing npm run drop && NODE_ENV=testing npm run create &&  NODE_ENV=testing nyc --reporter=html --reporter=text mocha test/**/*.js --exit",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "lint": "node_modules/.bin/eslint --fix index.js controllers api-routes middleware",
     "pre-commit": "npm run lint",
     "pre-push": "npm run lint",
-    "create": "node ./models/db createTables"
+    "create": "node ./models createTables"
   },
   "husky": {
     "hooks": {

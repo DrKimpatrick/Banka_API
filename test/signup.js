@@ -8,7 +8,7 @@ const base = require('./base');
 
 const SIGNUP_URL = '/api/v1/auth/signup';
 
-const { tearDown, createTables } = require('../models/db');
+const { tearDown, createTables } = require('../models');
 // Configure chai
 chai.use(chaiHttp);
 chai.should();
@@ -30,8 +30,7 @@ describe('Authentication', () => {
         .post(SIGNUP_URL)
         .send(base.signup_user_1)
         .end((err, res) => {
-          // console.log('nowowwo____nownw-----nwoww', res);
-          res.should.have.status(202);
+          res.should.have.status(201);
           res.body.should.be.a('object');
           res.body.should.have.property('status');
           res.body.should.have.property('data');
