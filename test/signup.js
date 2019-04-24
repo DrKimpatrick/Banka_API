@@ -8,11 +8,21 @@ const base = require('./base');
 
 const SIGNUP_URL = '/api/v1/auth/signup';
 
+const { tearDown, createTables } = require('../models/db');
 // Configure chai
 chai.use(chaiHttp);
 chai.should();
 
 describe('Authentication', () => {
+  beforeEach((done) => {
+    createTables();
+    done();
+  });
+
+  afterEach((done) => {
+    tearDown();
+    done();
+  });
   describe('POST', () => {
     it('should create a user account', (done) => {
       chai

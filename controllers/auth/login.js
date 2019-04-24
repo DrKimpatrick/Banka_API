@@ -2,9 +2,8 @@
 const bcrypt = require('bcryptjs');
 // import token generator
 const middleware = require('../../middleware');
-// import user data storage
-const { users } = require('../../models');
-
+// Database connection
+const { pool } = require('../../models/db');
 // user login
 exports.login = (req, res) => {
   const { password, email } = req.body;
@@ -16,33 +15,48 @@ exports.login = (req, res) => {
     });
   }
 
-  // Get for the currently logged in user
-  const returnUser = user => bcrypt.compareSync(password, user.password) && user.email === email;
-  const userObject = users.find(returnUser);
+  pool.connect((err, client, done) => {
+    const query = 'SELECT * FROM users WHERE email = $1';
+    client.query(query, [email], (error, result) => {
+      done();
+      if (error) {
+        return res.status(400).json({
+          status: 400,
+          error,
+        });
+      }
+      if (result.rows.length === 0) {
+        return res.status(401).json({
+          status: 401,
+          error: 'Wrong email or password',
+        });
+      }
 
-  if (!userObject) {
-    // Wrong password
-    return res.status(401).json({
-      status: 401,
-      error: 'Wrong email or password',
+      const { rows } = result;
+      const row = rows[0];
+
+      // compare passwords
+      const isAuthenticated = bcrypt.compareSync(password, row.password) && row.email === email;
+
+      if (!isAuthenticated) {
+        return res.status(401).json({
+          status: 401,
+          error: 'Wrong email or password',
+        });
+      }
+      return res.status(202).send({
+        status: 202,
+        data: {
+          token: middleware.token(row.id),
+          id: row.id,
+          firstName: row.firstname,
+          lastName: row.lastname,
+          email: row.email,
+          type: row.type,
+          isAdmin: row.isadmin,
+          createdAt: row.createdat,
+        },
+      });
     });
-  }
-
-  // return the JWT token for the future API calls
-  return res.status(200).json({
-    status: 200,
-    data: {
-      token: middleware.token(userObject.id),
-      id: userObject.id,
-      firstName: userObject.firstName,
-      lastName: userObject.lastName,
-      email: userObject.email,
-    },
   });
 };
-
-// fetch all users
-exports.allUsers = (req, res) => res.status(200).json({
-  status: 200,
-  data: users,
-});

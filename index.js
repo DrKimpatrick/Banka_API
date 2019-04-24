@@ -22,7 +22,7 @@ app.use(bodyParser.text());
 // use API routes in the app
 app.use('/api/v1', apiRoutes);
 // Setup server port
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3000;
 
 // Launch app to listen to a specific port
 app.listen(PORT, () => {
