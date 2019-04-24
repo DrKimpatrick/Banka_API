@@ -169,7 +169,7 @@ exports.signup = (req, res) => {
         return res.status(202).send({
           status: 202,
           data: {
-            token: middleware.token(data.id),
+            token: middleware.token(row.id),
             id: row.id,
             firstName: row.firstname,
             lastName: row.lastname,

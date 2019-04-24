@@ -29,7 +29,5 @@ router.route('/transactions/:accountNumber/debit')
   .post(middleware.verifyToken, bankTransactions.debitTransaction);
 router.route('/account/history')
   .get(middleware.verifyToken, transationHistory);
-router.route('/users')
-  .get(middleware.verifyToken, loginController.allUsers);
 // Export API routes
 module.exports = router;
