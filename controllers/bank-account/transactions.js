@@ -1,11 +1,9 @@
 /* eslint-disable consistent-return */
-// Import Bank account database
-const { bankAccount } = require('../../models');
 // Current user information
 const utils = require('./utils');
-
+const db = require('../../db');
 // Credit user account
-exports.creditTransaction = (req, res) => {
+exports.creditTransaction = async (req, res) => {
   const { params: { accountNumber }, body: { amount } } = req;
   // Amount required
   if (!amount) {
@@ -29,13 +27,22 @@ exports.creditTransaction = (req, res) => {
   if (utils.checkAmount(cash, res)) {
     return utils.checkAmount(cash, res);
   }
+  // Getting the current user object
+  const user = await utils.currentUser(req.userId);
+  if (!user) {
+    return res.status(401).json({
+      status: 401,
+      error: 'Token expired please login again',
+    });
+  }
+
   // User must be staff/admin to perform the operation
-  if (utils.checkUserType(utils.currentUser(req.userId), res)) {
-    return utils.checkUserType(utils.currentUser(req.userId), res);
+  if (utils.checkUserType(user, res)) {
+    return utils.checkUserType(user, res);
   }
 
   // Check for bank account with the provided account number
-  const accountObj = utils.checkAccountNumber(bankAccount, accountNumber);
+  const accountObj = await utils.checkAccountNumber(accountNumber);
 
   // Check if account exists
   if (utils.ifNoAccount(accountObj, res)) {
@@ -44,21 +51,25 @@ exports.creditTransaction = (req, res) => {
   }
 
   // Credit bank account
-  accountObj.balance = (Number(accountObj.balance) + cash);
-  // save debit transaction
-  utils.saveTransaction(accountObj, req, cash, 'Credit');
+  const newBalance = (Number(accountObj.balance) + cash);
 
-  const { transactionHistory } = accountObj;
-  const transaction = transactionHistory[transactionHistory.length - 1];
+  // Update the account Balance
+  const sql = 'UPDATE accounts SET balance = $1 WHERE accountNumber = $2 returning *';
+  await db.query(sql, [newBalance, accountNumber]);
+
+  const cashier = await utils.currentUser(req.userId);
+  // save Credit transaction
+  const transObj = await utils.saveTransaction(newBalance, cashier.id, cash, 'Credit', accountObj.balance, accountObj.id);
+
   // Return account details
-  return res.status(202).json({
-    status: 202,
-    data: utils.transactionData(transaction, accountObj),
+  return res.status(201).json({
+    status: 201,
+    data: utils.transactionData(transObj, accountObj),
   });
 };
 
 // Debit user account
-exports.debitTransaction = (req, res) => {
+exports.debitTransaction = async (req, res) => {
   const { params: { accountNumber }, body: { amount } } = req;
 
   // Amount required
@@ -90,7 +101,7 @@ exports.debitTransaction = (req, res) => {
   }
 
   // Check for bank account with the provided account number
-  const accountObj = utils.checkAccountNumber(bankAccount, accountNumber);
+  const accountObj = await utils.checkAccountNumber(accountNumber);
 
   // Check if account exists
   if (utils.ifNoAccount(accountObj, res)) {

@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS
 CREATE TABLE IF NOT EXISTS
           transactions(
               id SERIAL PRIMARY KEY,
-              transactionId VARCHAR(10) NOT NULL UNIQUE,
+              transactionId VARCHAR(128) NOT NULL UNIQUE,
               createdOn TIMESTAMP DEFAULT NOW(),
               updatedOn TIMESTAMP DEFAULT NOW(),
               cashier INTEGER NOT NULL ,

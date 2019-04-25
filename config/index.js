@@ -10,5 +10,5 @@ if (process.env.NODE_ENV === 'production') {
   module.exports = new Pool({ connectionString: 'postgresql://postgres:Kp15712Kp@localhost:5432/test_db' });
 } else {
   // production
-  module.exports = new Pool({ connectionString: 'postgresql://postgres:Kp15712Kp@localhost:5432/db2' });
+  module.exports = new Pool({ connectionString: 'postgresql://postgres:Kp15712Kp@localhost:5432/db3' });
 }
