@@ -37,8 +37,8 @@ exports.creditTransaction = async (req, res) => {
   }
 
   // User must be staff/admin to perform the operation
-  if (utils.checkUserType(user, res)) {
-    return utils.checkUserType(user, res);
+  if (utils.isStaff(user, res)) {
+    return utils.isStaff(user, res);
   }
 
   // Check for bank account with the provided account number
@@ -105,8 +105,8 @@ exports.debitTransaction = async (req, res) => {
   }
 
   // User must be staff/admin to perform the operation
-  if (utils.checkUserType(user, res)) {
-    return utils.checkUserType(user, res);
+  if (utils.isStaff(user, res)) {
+    return utils.isStaff(user, res);
   }
 
   // Check for bank account with the provided account number
