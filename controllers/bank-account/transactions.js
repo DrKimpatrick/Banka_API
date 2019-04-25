@@ -1,32 +1,10 @@
 /* eslint-disable consistent-return */
+const db = require('../../db');
 // Current user information
 const utils = require('./utils');
-const db = require('../../db');
-// Credit user account
-exports.creditTransaction = async (req, res) => {
-  const { params: { accountNumber }, body: { amount } } = req;
-  // Amount required
-  if (!amount) {
-    return res.status(400).json({
-      status: 400,
-      error: 'Amount is required !',
-    });
-  }
 
-  // Ensure amount is float / integer
-  const cash = Number(amount);
-
-  // eslint-disable-next-line no-restricted-globals
-  if (isNaN(amount)) {
-    return res.status(400).json({
-      status: 400,
-      error: 'Invalid amount format !!!',
-    });
-  }
-  // Zero and negative values not allowed
-  if (utils.checkAmount(cash, res)) {
-    return utils.checkAmount(cash, res);
-  }
+exports.transactionsHistory = async (req, res) => {
+  const { accountNumber } = req.params;
   // Getting the current user object
   const user = await utils.currentUser(req.userId);
   if (!user) {
@@ -36,65 +14,42 @@ exports.creditTransaction = async (req, res) => {
     });
   }
 
-  // User must be staff/admin to perform the operation
-  if (utils.checkUserType(user, res)) {
-    return utils.checkUserType(user, res);
+  // check if user has account with this accountNumber
+  const query = 'SELECT * FROM accounts WHERE accountNumber = $1 AND userId = $2';
+  const { rows } = await db.query(query, [accountNumber, user.id]);
+
+  if (rows.length === 0) {
+    return res.status(404).json({
+      status: 404,
+      error: `You don't own any account with number ${accountNumber}`,
+    });
   }
 
-  // Check for bank account with the provided account number
-  const accountObj = await utils.checkAccountNumber(accountNumber);
+  // Check for bank account with the provided account number and user
+  const sql = `
+  SELECT a.accountnumber,
+          t.transactionid,
+          t.amount,
+          t.oldbalance,
+          t.newbalance,
+          t.type,
+          t.createdon
+  FROM users as u
+  INNER JOIN accounts as a 
+  ON u.id = a.userId
+  INNER JOIN transactions as t
+  ON a.id = t.account_id
+  WHERE accountNumber = $1 AND userId = $2`;
+  const result = await db.query(sql, [accountNumber, user.id]);
 
-  // Check if account exists
-  if (utils.ifNoAccount(accountObj, res)) {
-    // Account does not exist
-    return utils.ifNoAccount(accountObj, res);
-  }
-
-  // Credit bank account
-  const newBalance = (Number(accountObj.balance) + cash);
-
-  // Update the account Balance
-  const sql = 'UPDATE accounts SET balance = $1 WHERE accountNumber = $2 returning *';
-  await db.query(sql, [newBalance, accountNumber]);
-
-  const cashier = await utils.currentUser(req.userId);
-  // save Credit transaction
-  const transObj = await utils.saveTransaction(newBalance, cashier.id, cash, 'Credit', accountObj.balance, accountObj.id);
-
-  // Return account details
-  return res.status(201).json({
-    status: 201,
-    data: utils.transactionData(transObj, accountObj),
+  return res.status(200).json({
+    status: 200,
+    data: result.rows,
   });
 };
 
-// Debit user account
-exports.debitTransaction = async (req, res) => {
-  const { params: { accountNumber }, body: { amount } } = req;
-
-  // Amount required
-  if (!amount) {
-    return res.status(400).json({
-      status: 400,
-      error: 'Amount is required !',
-    });
-  }
-  // Ensure amount is float / integer
-  const cash = Number(amount);
-
-  // eslint-disable-next-line no-restricted-globals
-  if (isNaN(amount)) {
-    return res.status(400).json({
-      status: 400,
-      error: 'Invalid amount format !!!',
-    });
-  }
-
-  // Zero and negative values not allowed
-  if (utils.checkAmount(cash, res)) {
-    return utils.checkAmount(cash, res);
-  }
-
+exports.transactionsDetail = async (req, res) => {
+  const { transactionId } = req.params;
   // Getting the current user object
   const user = await utils.currentUser(req.userId);
   if (!user) {
@@ -104,42 +59,32 @@ exports.debitTransaction = async (req, res) => {
     });
   }
 
-  // User must be staff/admin to perform the operation
-  if (utils.checkUserType(user, res)) {
-    return utils.checkUserType(user, res);
-  }
-
-  // Check for bank account with the provided account number
-  const accountObj = await utils.checkAccountNumber(accountNumber);
-
-  // Check if account exists
-  if (utils.ifNoAccount(accountObj, res)) {
-    // Account does not exist
-    return utils.ifNoAccount(accountObj, res);
-  }
-
-  // Debit bank account
-  // User should not request more than the available balance
-  if (cash > Number(accountObj.balance)) {
-    return res.status(400).json({
-      status: 400,
-      error: 'You can not withdraw more than the available balance',
+  // Check for transaction with the provided transactionId and user
+  const sql = `
+    SELECT a.accountnumber,
+            t.transactionid,
+            t.amount,
+            t.oldbalance,
+            t.newbalance,
+            t.type,
+            t.createdon
+    FROM users as u
+    INNER JOIN accounts as a 
+    ON u.id = a.userId
+    INNER JOIN transactions as t
+    ON a.id = t.account_id
+    WHERE transactionId = $1 AND userId = $2`;
+  const { rows } = await db.query(sql, [transactionId, user.id]);
+  if (rows.length === 0) {
+    //
+    return res.status(404).json({
+      status: 404,
+      error: `You don't own any transaction with ID ${transactionId}`,
     });
   }
-  // Otherwise continue
-  const newBalance = (Number(accountObj.balance) - cash);
 
-  // Update the account Balance
-  const sql = 'UPDATE accounts SET balance = $1 WHERE accountNumber = $2 returning *';
-  await db.query(sql, [newBalance, accountNumber]);
-
-  const cashier = await utils.currentUser(req.userId);
-  // save Credit transaction
-  const transObj = await utils.saveTransaction(newBalance, cashier.id, cash, 'Debit', accountObj.balance, accountObj.id);
-
-  // Return account details
-  return res.status(201).json({
-    status: 201,
-    data: utils.transactionData(transObj, accountObj),
+  return res.status(200).json({
+    status: 200,
+    data: rows[0],
   });
 };

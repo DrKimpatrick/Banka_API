@@ -4,7 +4,7 @@ const router = require('express').Router();
 // import signup
 const signupController = require('../controllers/auth/signup');
 const loginController = require('../controllers/auth/login');
-const bankTransactions = require('../controllers/bank-account/transactions');
+const bankTransactions = require('../controllers/bank-account/creditdebit');
 const deleteAccount = require('../controllers/bank-account/deleteAccount');
 const accountStatus = require('../controllers/bank-account/accountStatus');
 const createBankAccount = require('../controllers/bank-account/createAccount');
@@ -14,7 +14,7 @@ const userType = require('../controllers/auth/userType');
 const userAccountList = require('../controllers/bank-account/userAccounts');
 const accounts = require('../controllers/bank-account/bankAccounts');
 const accountDetails = require('../controllers/bank-account/accountDetails');
-
+const transactions = require('../controllers/bank-account/transactions');
 // import VerifyToken middleware function
 const middleware = require('../middleware');
 
@@ -50,6 +50,10 @@ router.route('/accounts/status')
   .get(middleware.verifyToken, accounts.accountCategories);
 router.route('/user/:email/accounts')
   .get(middleware.verifyToken, accounts.specificUserAccounts);
+router.route('/accounts/:accountNumber/transactions')
+  .get(middleware.verifyToken, transactions.transactionsHistory);
+router.route('/transactions/:transactionId')
+  .get(middleware.verifyToken, transactions.transactionsDetail);
 
 
 // Export API routes

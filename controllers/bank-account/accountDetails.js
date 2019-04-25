@@ -15,7 +15,17 @@ const accountDetails = async (req, res) => {
   }
 
   // Check for bank account with the provided account number and user
-  const query = 'SELECT * FROM accounts WHERE accountNumber = $1 AND userId = $2';
+  const query = `
+  SELECT a.accountnumber,
+          a.createdon,
+          u.email AS ownerEmail,
+          a.status,
+          a.type,
+          a.balance
+  FROM users as u
+  INNER JOIN accounts as a 
+  ON u.id = a.userId
+  WHERE accountNumber = $1 AND userId = $2`;
   const { rows } = await db.query(query, [accountNumber, user.id]);
 
   if (rows.length === 0) {
@@ -28,7 +38,8 @@ const accountDetails = async (req, res) => {
 
   return res.status(200).json({
     status: 200,
-    data: rows,
+    data: rows[0],
   });
 };
+
 module.exports = accountDetails;
