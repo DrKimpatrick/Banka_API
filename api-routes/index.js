@@ -14,7 +14,7 @@ const userType = require('../controllers/auth/userType');
 const userAccountList = require('../controllers/bank-account/userAccounts');
 const accounts = require('../controllers/bank-account/bankAccounts');
 const accountDetails = require('../controllers/bank-account/accountDetails');
-const transactionsHistory = require('../controllers/bank-account/transactions');
+const transactions = require('../controllers/bank-account/transactions');
 // import VerifyToken middleware function
 const middleware = require('../middleware');
 
@@ -51,7 +51,9 @@ router.route('/accounts/status')
 router.route('/user/:email/accounts')
   .get(middleware.verifyToken, accounts.specificUserAccounts);
 router.route('/accounts/:accountNumber/transactions')
-  .get(middleware.verifyToken, transactionsHistory);
+  .get(middleware.verifyToken, transactions.transactionsHistory);
+router.route('/transactions/:transactionId')
+  .get(middleware.verifyToken, transactions.transactionsDetail);
 
 
 // Export API routes
