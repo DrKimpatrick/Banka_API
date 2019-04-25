@@ -17,8 +17,8 @@ const createBankAccount = async (req, res) => {
 
   // TYpe should be current or savings
   const accountTypes = ['savings', 'current', 'loan'];
-  type.toLowerCase();
-  const isTrue = accountTypes.indexOf(type);
+  const newType = type.toLowerCase();
+  const isTrue = accountTypes.indexOf(newType);
   if (isTrue < 0) {
     return res.status(400).json({
       status: 400,
@@ -40,7 +40,7 @@ const createBankAccount = async (req, res) => {
     accountNumber,
     userId) 
     VALUES ($1, $2, $3) RETURNING *`;
-  const values = [type, accountGenerator(), user.id];
+  const values = [newType, accountGenerator(), user.id];
 
   const { rows } = await db.query(query, values);
 
