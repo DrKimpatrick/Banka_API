@@ -4,7 +4,7 @@ const db = require('../../db');
 const utils = require('./utils');
 
 // Create bank account
-const accountList = async (req, res) => {
+const userAccountList = async (req, res) => {
   // Getting the current user object
   const user = await utils.currentUser(req.userId);
   if (!user) {
@@ -38,4 +38,4 @@ const accountList = async (req, res) => {
   });
 };
 
-module.exports = accountList;
+module.exports = userAccountList;
