@@ -16,9 +16,9 @@ const accountStatus = async (req, res) => {
     });
   }
 
-  // User must be staff/admin to perform the operation
-  if (utils.checkUserType(user, res)) {
-    return utils.checkUserType(user, res);
+  // User must be admin to perform the operation
+  if (utils.isAdminUser(user, res)) {
+    return utils.isAdminUser(user, res);
   }
 
   if (!status) {
@@ -57,8 +57,8 @@ const accountStatus = async (req, res) => {
 
 
   // Return account details
-  return res.status(202).json({
-    status: 202,
+  return res.status(200).json({
+    status: 200,
     data: rows[0],
   });
 };

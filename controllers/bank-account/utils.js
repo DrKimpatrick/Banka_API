@@ -12,12 +12,12 @@ exports.currentUser = async (id) => {
 
 // Restrict access to only staff/admin || userData.isAdmin === false
 // client can not perform debit and credit transactions
-exports.checkUserType = (userData, res) => {
+exports.isAdminUser = (userData, res) => {
   if (userData) {
-    if (userData.type === 'client') {
+    if (userData.isadmin === false) {
       return res.status(401).json({
         status: 401,
-        error: 'Access denied!',
+        error: 'Access denied, contact a system admin',
       });
     }
   }
@@ -28,18 +28,22 @@ exports.isNotClient = (userData, res) => {
     if (userData.type === 'client') {
       return res.status(401).json({
         status: 401,
-        error: 'Access denied!',
+        error: 'Access denied, please contact and admin or staff member',
       });
     }
-  } else {
-    // User does not exist. Deleted when list was cleard
-    return res.status(401).json({
-      status: 401,
-      error: 'Token is expired, please login again!',
-    });
   }
 };
 
+exports.isStaff = (userData, res) => {
+  if (userData) {
+    if (userData.type === 'client' || userData.isadmin === true) {
+      return res.status(401).json({
+        status: 401,
+        error: 'Access denied, contact a staff member',
+      });
+    }
+  }
+};
 
 // Transaction details
 exports.transactionData = (transaction, accountObj) => (
