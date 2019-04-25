@@ -10,22 +10,16 @@ exports.currentUser = async (id) => {
   return rows[0];
 };
 
-// Restrict access to only staff/admin
+// Restrict access to only staff/admin || userData.isAdmin === false
 // client can not perform debit and credit transactions
 exports.checkUserType = (userData, res) => {
   if (userData) {
-    if (userData.type === 'client' || userData.isAdmin === false) {
+    if (userData.type === 'client') {
       return res.status(401).json({
         status: 401,
         error: 'Access denied!',
       });
     }
-  } else {
-    // User does not exist. Deleted when list was cleared
-    return res.status(401).json({
-      status: 401,
-      error: 'Token is expired, please login again!',
-    });
   }
 };
 
@@ -50,34 +44,38 @@ exports.isNotClient = (userData, res) => {
 // Transaction details
 exports.transactionData = (transaction, accountObj) => (
   {
-    transactionId: transaction.transactionId,
-    accountNumber: accountObj.accountNumber,
+    transactionId: transaction.transactionid,
+    accountNumber: accountObj.accountnumber,
     amount: transaction.amount,
     cashier: transaction.cashier,
-    transactionType: transaction.transactionType,
-    accountBalance: accountObj.balance,
+    transactionType: transaction.type,
+    oldBalance: transaction.oldbalance,
+    newBalance: transaction.newbalance,
+    createdOn: transaction.createdon,
   }
 );
 
 // Save bank transaction
-exports.saveTransaction = (accountObj, req, cash, type) => {
-  accountObj.transactionHistory.push({
-    transactionId: new Date().valueOf(),
-    transactionType: type,
-    cashier: req.userId,
-    accountBalance: accountObj.balance,
-    amount: cash,
-  });
+exports.saveTransaction = async (newBalance, userId, cash, type, oldBalance, accountID) => {
+  // Insert new user in the database
+  const query = `INSERT INTO transactions(
+    transactionId, 
+    type, 
+    cashier, 
+    newBalance,
+    oldBalance,
+    amount, account_id) 
+    VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`;
+  const values = [new Date().valueOf(), type, userId, newBalance, oldBalance, cash, accountID];
+  const { rows } = await db.query(query, values);
+  return rows[0];
 };
 
 // Check for the account number
-exports.checkAccountNumber = (bankAccount, accountNumber) => {
-  let Obj = null;
-  bankAccount.forEach((account) => {
-    if (account.accountNumber.toString() === accountNumber) {
-      Obj = account;
-    }
-  });
+exports.checkAccountNumber = async (accountNumber) => {
+  const query = 'SELECT * FROM accounts WHERE accountNumber = $1';
+  const { rows } = await db.query(query, [accountNumber]);
+  const Obj = rows ? rows[0] : null;
   return Obj;
 };
 

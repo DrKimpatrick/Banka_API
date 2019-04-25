@@ -28,13 +28,19 @@ const createBankAccount = async (req, res) => {
 
   // Getting the current user object
   const user = await utils.currentUser(req.userId);
+  if (!user) {
+    return res.status(401).json({
+      status: 401,
+      error: 'Token expired please login again',
+    });
+  }
   // Create bank account
   const query = `INSERT INTO accounts(
     type,
     accountNumber,
     userId) 
     VALUES ($1, $2, $3) RETURNING *`;
-  const values = [type, accountGenerator(), req.userId];
+  const values = [type, accountGenerator(), user.id];
 
   const { rows } = await db.query(query, values);
 
