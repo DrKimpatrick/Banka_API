@@ -8,10 +8,13 @@ const db = require('../../db');
 
 
 const checkName = (name, res) => {
-  // Regular expression for name with spaces allowed in
-  // between the text and avoid spaces when there is no text
-  // Check the format in fisrtName and lastName are presented
-  // Numbers and special characters are not allowed
+  /*
+  Regular expression for name with spaces allowed in
+  between the text and avoid spaces when there is no text
+  Check the format in fisrtName and lastName are presented
+  Numbers and special characters are not allowed
+
+   */
   if (!name.match(/^(?![\s.]+$)[a-zA-Z\s.]*$/)) {
     return res.status(400).json({
       status: 400,
