@@ -95,9 +95,18 @@ exports.debitTransaction = async (req, res) => {
     return utils.checkAmount(cash, res);
   }
 
+  // Getting the current user object
+  const user = await utils.currentUser(req.userId);
+  if (!user) {
+    return res.status(401).json({
+      status: 401,
+      error: 'Token expired please login again',
+    });
+  }
+
   // User must be staff/admin to perform the operation
-  if (utils.checkUserType(utils.currentUser(req.userId), res)) {
-    return utils.checkUserType(utils.currentUser(req.userId), res);
+  if (utils.checkUserType(user, res)) {
+    return utils.checkUserType(user, res);
   }
 
   // Check for bank account with the provided account number
@@ -118,15 +127,19 @@ exports.debitTransaction = async (req, res) => {
     });
   }
   // Otherwise continue
-  accountObj.balance = (Number(accountObj.balance) - cash);
-  // Register in transaction history
-  utils.saveTransaction(accountObj, req, cash, 'Debit');
+  const newBalance = (Number(accountObj.balance) - cash);
 
-  const { transactionHistory } = accountObj;
-  const transaction = transactionHistory[transactionHistory.length - 1];
+  // Update the account Balance
+  const sql = 'UPDATE accounts SET balance = $1 WHERE accountNumber = $2 returning *';
+  await db.query(sql, [newBalance, accountNumber]);
+
+  const cashier = await utils.currentUser(req.userId);
+  // save Credit transaction
+  const transObj = await utils.saveTransaction(newBalance, cashier.id, cash, 'Debit', accountObj.balance, accountObj.id);
+
   // Return account details
-  return res.status(202).json({
-    status: 202,
-    data: utils.transactionData(transaction, accountObj),
+  return res.status(201).json({
+    status: 201,
+    data: utils.transactionData(transObj, accountObj),
   });
 };
