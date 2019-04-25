@@ -44,7 +44,9 @@ router.route('/accounts')
 router.route('/accounts')
   .get(middleware.verifyToken, accounts.accountList);
 router.route('/accounts/status')
-  .get(middleware.verifyToken, accounts.activeAccounts);
+  .get(middleware.verifyToken, accounts.accountCategories);
+router.route('/user/:email/accounts')
+  .get(middleware.verifyToken, accounts.specificUserAccounts);
 
 
 // Export API routes

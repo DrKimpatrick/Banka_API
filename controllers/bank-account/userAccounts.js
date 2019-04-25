@@ -3,7 +3,6 @@ const db = require('../../db');
 // Current user information
 const utils = require('./utils');
 
-// Create bank account
 const userAccountList = async (req, res) => {
   // Getting the current user object
   const user = await utils.currentUser(req.userId);
