@@ -1,6 +1,6 @@
 /* eslint-disable consistent-return */
-const utils = require('./utils');
-const db = require('../../db');
+import { currentUser } from './utils';
+import { query as _query } from '../../db';
 // Generate a bank account number, a nine character number
 const accountGenerator = () => Math.floor(Math.random() * 1000000000);
 
@@ -27,7 +27,7 @@ const createBankAccount = async (req, res) => {
   }
 
   // Getting the current user object
-  const user = await utils.currentUser(req.userId);
+  const user = await currentUser(req.userId);
   if (!user) {
     return res.status(401).json({
       status: 401,
@@ -42,7 +42,7 @@ const createBankAccount = async (req, res) => {
     VALUES ($1, $2, $3) RETURNING *`;
   const values = [newType, accountGenerator(), user.id];
 
-  const { rows } = await db.query(query, values);
+  const { rows } = await _query(query, values);
 
 
   // account response
@@ -61,4 +61,4 @@ const createBankAccount = async (req, res) => {
   });
 };
 
-module.exports = createBankAccount;
+export default createBankAccount;

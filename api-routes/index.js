@@ -1,60 +1,64 @@
-// Initialize express router
+
+import { verifyToken } from '../middleware';
+import signup from '../controllers/auth/signup';
+import login from '../controllers/auth/login';
+import creditdebit from '../controllers/bank-account/creditdebit';
+import deleteAccount from '../controllers/bank-account/deleteAccount';
+import accountStatus from '../controllers/bank-account/accountStatus';
+import createBankAccount from '../controllers/bank-account/createAccount';
+import users from '../controllers/auth/users';
+import userType from '../controllers/auth/userType';
+import userAccountList from '../controllers/bank-account/userAccounts';
+import bankaccounts from '../controllers/bank-account/bankAccounts';
+import accountDetails from '../controllers/bank-account/accountDetails';
+import transaction from '../controllers/bank-account/transactions';
+import accountCategories from '../controllers/bank-account/accountCategory';
+
 const router = require('express').Router();
 
-// import signup
-const signupController = require('../controllers/auth/signup');
-const loginController = require('../controllers/auth/login');
-const bankTransactions = require('../controllers/bank-account/creditdebit');
-const deleteAccount = require('../controllers/bank-account/deleteAccount');
-const accountStatus = require('../controllers/bank-account/accountStatus');
-const createBankAccount = require('../controllers/bank-account/createAccount');
-const transationHistory = require('../controllers/bank-account/userAccounts');
-const users = require('../controllers/auth/users');
-const userType = require('../controllers/auth/userType');
-const userAccountList = require('../controllers/bank-account/userAccounts');
-const accounts = require('../controllers/bank-account/bankAccounts');
-const accountDetails = require('../controllers/bank-account/accountDetails');
-const transactions = require('../controllers/bank-account/transactions');
-// import VerifyToken middleware function
-const middleware = require('../middleware');
-
-// auth routes
 router.route('/auth/signup')
-  .post(signupController.signup);
+  .post(signup.signup);
+
 router.route('/auth/login')
-  .post(loginController.login);
+  .post(login.login);
+
 router.route('/accounts')
-  .post(middleware.verifyToken, createBankAccount);
+  .post(verifyToken, createBankAccount)
+  .get(verifyToken, bankaccounts.accountList);
+
 router.route('/account/:accountNumber')
-  .patch(middleware.verifyToken, accountStatus)
-  .delete(middleware.verifyToken, deleteAccount);
+  .patch(verifyToken, accountStatus)
+  .delete(verifyToken, deleteAccount);
+
 router.route('/transactions/:accountNumber/credit')
-  .post(middleware.verifyToken, bankTransactions.creditTransaction);
+  .post(verifyToken, creditdebit.creditTransaction);
+
 router.route('/transactions/:accountNumber/debit')
-  .post(middleware.verifyToken, bankTransactions.debitTransaction);
-router.route('/account/history')
-  .get(middleware.verifyToken, transationHistory);
+  .post(verifyToken, creditdebit.debitTransaction);
+
 router.route('/users')
-  .get(middleware.verifyToken, users);
+  .get(verifyToken, users);
+
 router.route('/user/type')
-  .put(middleware.verifyToken, userType);
+  .put(verifyToken, userType);
+
 router.route('/user/accounts')
-  .get(middleware.verifyToken, userAccountList);
+  .get(verifyToken, userAccountList);
+
 router.route('/accounts/:accountNumber')
-  .get(middleware.verifyToken, accountDetails);
-router.route('/accounts')
-  .get(middleware.verifyToken, accounts.accountList);
-router.route('/accounts')
-  .get(middleware.verifyToken, accounts.accountList);
-router.route('/accounts/status')
-  .get(middleware.verifyToken, accounts.accountCategories);
+  .get(verifyToken, accountDetails);
+
+router.route('/category')
+  .get(verifyToken, accountCategories);
+
 router.route('/user/:email/accounts')
-  .get(middleware.verifyToken, accounts.specificUserAccounts);
+  .get(verifyToken, bankaccounts.specificUserAccounts);
+
 router.route('/accounts/:accountNumber/transactions')
-  .get(middleware.verifyToken, transactions.transactionsHistory);
+  .get(verifyToken, transaction.transactionsHistory);
+
 router.route('/transactions/:transactionId')
-  .get(middleware.verifyToken, transactions.transactionsDetail);
+  .get(verifyToken, transaction.transactionsDetail);
 
 
-// Export API routes
-module.exports = router;
+export default router;

@@ -1,7 +1,10 @@
 /* eslint-disable consistent-return */
 // Current user information
-const utils = require('./utils');
-const db = require('../../db');
+import {
+  checkAmount, currentUser, isStaff, checkAccountNumber,
+  ifNoAccount, saveTransaction, transactionData,
+} from './utils';
+import { query } from '../../db';
 // Credit user account
 exports.creditTransaction = async (req, res) => {
   const { params: { accountNumber }, body: { amount } } = req;
@@ -24,11 +27,11 @@ exports.creditTransaction = async (req, res) => {
     });
   }
   // Zero and negative values not allowed
-  if (utils.checkAmount(cash, res)) {
-    return utils.checkAmount(cash, res);
+  if (checkAmount(cash, res)) {
+    return checkAmount(cash, res);
   }
   // Getting the current user object
-  const user = await utils.currentUser(req.userId);
+  const user = await currentUser(req.userId);
   if (!user) {
     return res.status(401).json({
       status: 401,
@@ -37,17 +40,17 @@ exports.creditTransaction = async (req, res) => {
   }
 
   // User must be staff/admin to perform the operation
-  if (utils.isStaff(user, res)) {
-    return utils.isStaff(user, res);
+  if (isStaff(user, res)) {
+    return isStaff(user, res);
   }
 
   // Check for bank account with the provided account number
-  const accountObj = await utils.checkAccountNumber(accountNumber);
+  const accountObj = await checkAccountNumber(accountNumber);
 
   // Check if account exists
-  if (utils.ifNoAccount(accountObj, res)) {
+  if (ifNoAccount(accountObj, res)) {
     // Account does not exist
-    return utils.ifNoAccount(accountObj, res);
+    return ifNoAccount(accountObj, res);
   }
 
   // Credit bank account
@@ -55,16 +58,16 @@ exports.creditTransaction = async (req, res) => {
 
   // Update the account Balance
   const sql = 'UPDATE accounts SET balance = $1 WHERE accountNumber = $2 returning *';
-  await db.query(sql, [newBalance, accountNumber]);
+  await query(sql, [newBalance, accountNumber]);
 
-  const cashier = await utils.currentUser(req.userId);
+  const cashier = await currentUser(req.userId);
   // save Credit transaction
-  const transObj = await utils.saveTransaction(newBalance, cashier.id, cash, 'Credit', accountObj.balance, accountObj.id);
+  const transObj = await saveTransaction(newBalance, cashier.id, cash, 'Credit', accountObj.balance, accountObj.id);
 
   // Return account details
   return res.status(201).json({
     status: 201,
-    data: utils.transactionData(transObj, accountObj),
+    data: transactionData(transObj, accountObj),
   });
 };
 
@@ -91,12 +94,12 @@ exports.debitTransaction = async (req, res) => {
   }
 
   // Zero and negative values not allowed
-  if (utils.checkAmount(cash, res)) {
-    return utils.checkAmount(cash, res);
+  if (checkAmount(cash, res)) {
+    return checkAmount(cash, res);
   }
 
   // Getting the current user object
-  const user = await utils.currentUser(req.userId);
+  const user = await currentUser(req.userId);
   if (!user) {
     return res.status(401).json({
       status: 401,
@@ -105,17 +108,17 @@ exports.debitTransaction = async (req, res) => {
   }
 
   // User must be staff/admin to perform the operation
-  if (utils.isStaff(user, res)) {
-    return utils.isStaff(user, res);
+  if (isStaff(user, res)) {
+    return isStaff(user, res);
   }
 
   // Check for bank account with the provided account number
-  const accountObj = await utils.checkAccountNumber(accountNumber);
+  const accountObj = await checkAccountNumber(accountNumber);
 
   // Check if account exists
-  if (utils.ifNoAccount(accountObj, res)) {
+  if (ifNoAccount(accountObj, res)) {
     // Account does not exist
-    return utils.ifNoAccount(accountObj, res);
+    return ifNoAccount(accountObj, res);
   }
 
   // Debit bank account
@@ -131,15 +134,15 @@ exports.debitTransaction = async (req, res) => {
 
   // Update the account Balance
   const sql = 'UPDATE accounts SET balance = $1 WHERE accountNumber = $2 returning *';
-  await db.query(sql, [newBalance, accountNumber]);
+  await query(sql, [newBalance, accountNumber]);
 
-  const cashier = await utils.currentUser(req.userId);
+  const cashier = await currentUser(req.userId);
   // save Credit transaction
-  const transObj = await utils.saveTransaction(newBalance, cashier.id, cash, 'Debit', accountObj.balance, accountObj.id);
+  const transObj = await saveTransaction(newBalance, cashier.id, cash, 'Debit', accountObj.balance, accountObj.id);
 
   // Return account details
   return res.status(201).json({
     status: 201,
-    data: utils.transactionData(transObj, accountObj),
+    data: transactionData(transObj, accountObj),
   });
 };

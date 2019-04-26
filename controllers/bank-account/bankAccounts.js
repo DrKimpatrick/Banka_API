@@ -1,12 +1,12 @@
 /* eslint-disable consistent-return */
-const db = require('../../db');
+import { query as _query } from '../../db';
 // Current user information
-const utils = require('./utils');
+import { currentUser, isNotClient } from './utils';
 
 // Create bank account
-const accountList = async (req, res) => {
+exports.accountList = async (req, res) => {
   // Getting the current user object
-  const user = await utils.currentUser(req.userId);
+  const user = await currentUser(req.userId);
   if (!user) {
     return res.status(401).json({
       status: 401,
@@ -15,8 +15,8 @@ const accountList = async (req, res) => {
   }
 
   // User must be staff/admin to perform the operation
-  if (utils.isNotClient(user, res)) {
-    return utils.isNotClient(user, res);
+  if (isNotClient(user, res)) {
+    return isNotClient(user, res);
   }
 
   const query = `
@@ -30,7 +30,7 @@ const accountList = async (req, res) => {
         FROM users AS u
         INNER JOIN accounts AS a
         ON u.id = a.userId `;
-  const { rows } = await db.query(query);
+  const { rows } = await _query(query);
 
   return res.status(200).json({
     status: 200,
@@ -39,57 +39,11 @@ const accountList = async (req, res) => {
 };
 
 
-const accountCategories = async (req, res) => {
-  const { status } = req.query;
-
-  // Getting the current user object
-  const user = await utils.currentUser(req.userId);
-  if (!user) {
-    return res.status(401).json({
-      status: 401,
-      error: 'Token expired please login again',
-    });
-  }
-
-  // User must be staff/admin to perform the operation
-  if (utils.isNotClient(user, res)) {
-    return utils.isNotClient(user, res);
-  }
-
-  // TYpe should be current or savings
-  const accountTypes = ['active', 'dormant', 'draft'];
-  const newStatus = status.toLowerCase();
-  const isTrue = accountTypes.indexOf(newStatus);
-  if (isTrue < 0) {
-    return res.status(400).json({
-      status: 400,
-      error: 'Status should be active/dormant/draft',
-    });
-  }
-  const query = `
-        SELECT a.accountnumber,
-        a.createdon,
-        a.status,
-        a.balance,
-        u.firstname,
-        u.lastname,
-        u.email
-        FROM users AS u
-        INNER JOIN accounts AS a
-        ON u.id = a.userId WHERE a.status=$1`;
-  const { rows } = await db.query(query, [newStatus]);
-
-  return res.status(200).json({
-    status: 200,
-    data: rows,
-  });
-};
-
-const specificUserAccounts = async (req, res) => {
+exports.specificUserAccounts = async (req, res) => {
   const { email } = req.params;
 
   // Getting the current user object
-  const user = await utils.currentUser(req.userId);
+  const user = await currentUser(req.userId);
   if (!user) {
     return res.status(401).json({
       status: 401,
@@ -98,8 +52,8 @@ const specificUserAccounts = async (req, res) => {
   }
 
   // User must be admin to perform the operation
-  if (utils.isNotClient(user, res)) {
-    return utils.isNotClient(user, res);
+  if (isNotClient(user, res)) {
+    return isNotClient(user, res);
   }
 
   if (!email) {
@@ -110,7 +64,7 @@ const specificUserAccounts = async (req, res) => {
   }
 
   const query = 'SELECT * FROM users WHERE email = $1';
-  const { rows } = await db.query(query, [email]);
+  const { rows } = await _query(query, [email]);
 
   // No user with the email
   if (!rows[0]) {
@@ -130,7 +84,7 @@ const specificUserAccounts = async (req, res) => {
             INNER JOIN accounts AS a
               ON users.id = a.userId 
             WHERE users.email = $1`;
-  const result = await db.query(query2, [email]);
+  const result = await _query(query2, [email]);
 
   return res.status(200).json({
     status: 200,
@@ -141,10 +95,4 @@ const specificUserAccounts = async (req, res) => {
       accounts: result.rows,
     },
   });
-};
-
-module.exports = {
-  accountList,
-  accountCategories,
-  specificUserAccounts,
 };

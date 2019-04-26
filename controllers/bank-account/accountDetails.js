@@ -1,12 +1,12 @@
 /* eslint-disable consistent-return */
-const db = require('../../db');
+import { query as _query } from '../../db';
 // Current user information
-const utils = require('./utils');
+import { currentUser } from './utils';
 
 const accountDetails = async (req, res) => {
   const { accountNumber } = req.params;
   // Getting the current user object
-  const user = await utils.currentUser(req.userId);
+  const user = await currentUser(req.userId);
   if (!user) {
     return res.status(401).json({
       status: 401,
@@ -26,7 +26,7 @@ const accountDetails = async (req, res) => {
   INNER JOIN accounts as a 
   ON u.id = a.userId
   WHERE accountNumber = $1 AND userId = $2`;
-  const { rows } = await db.query(query, [accountNumber, user.id]);
+  const { rows } = await _query(query, [accountNumber, user.id]);
 
   if (rows.length === 0) {
     //
@@ -42,4 +42,4 @@ const accountDetails = async (req, res) => {
   });
 };
 
-module.exports = accountDetails;
+export default accountDetails;
