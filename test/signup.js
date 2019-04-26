@@ -115,18 +115,5 @@ describe('Authentication', () => {
           done();
         });
     });
-
-    it('should raise an error isAdmin is not false/true', (done) => {
-      chai.request(app)
-        .post(SIGNUP_URL)
-        .send(base.signup_user_10)
-        .end((err, res) => {
-          res.should.have.status(400);
-          res.body.should.be.a('object');
-          res.body.should.have.property('status');
-          res.body.should.have.property('error');
-          done();
-        });
-    });
   });
 });

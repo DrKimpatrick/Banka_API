@@ -1,12 +1,12 @@
 /* eslint-disable consistent-return */
-const db = require('../../db');
-const utils = require('../bank-account/utils');
+import { query as _query } from '../../db';
+import { currentUser } from '../bank-account/utils';
 
 
 // user login
 const users = async (req, res) => {
   // Getting the current user object
-  const user = await utils.currentUser(req.userId);
+  const user = await currentUser(req.userId);
   if (!user) {
     return res.status(401).json({
       status: 401,
@@ -22,7 +22,7 @@ const users = async (req, res) => {
   }
 
   const query = 'SELECT * FROM users';
-  const { rows } = await db.query(query);
+  const { rows } = await _query(query);
   const userList = [];
   rows.forEach((row) => {
     const data = {
@@ -41,4 +41,4 @@ const users = async (req, res) => {
   });
 };
 
-module.exports = users;
+export default users;
