@@ -1,7 +1,7 @@
 /* eslint-disable consistent-return */
 /* eslint-disable no-shadow */
-const db = require('../../db');
-const utils = require('../bank-account/utils');
+import { query as _query } from '../../db';
+import { currentUser } from '../bank-account/utils';
 // Type should be client / staff
 const checkUserType = (userType, res) => {
   const userTypes = ['client', 'staff'];
@@ -29,7 +29,7 @@ const changeUserType = async (req, res) => {
   }
 
   // Getting the current user object
-  const user = await utils.currentUser(req.userId);
+  const user = await currentUser(req.userId);
   if (!user) {
     return res.status(401).json({
       status: 401,
@@ -69,7 +69,7 @@ const changeUserType = async (req, res) => {
 
   // Update the type && isAdmin fields
   const query = 'SELECT * FROM users WHERE email = $1';
-  const { rows } = await db.query(query, [email]);
+  const { rows } = await _query(query, [email]);
   if (rows.length === 0) {
     return res.status(404).send({
       status: 404,
@@ -78,7 +78,7 @@ const changeUserType = async (req, res) => {
   }
 
   const sql = 'UPDATE users SET type = $1, isAdmin = $2 WHERE email = $3 returning *';
-  const response = await db.query(sql, [type, isAdminTrue, email]);
+  const response = await _query(sql, [type, isAdminTrue, email]);
   const row = response.rows[0];
   return res.status(201).send({
     status: 201,
@@ -93,4 +93,4 @@ const changeUserType = async (req, res) => {
   });
 };
 
-module.exports = changeUserType;
+export default changeUserType;

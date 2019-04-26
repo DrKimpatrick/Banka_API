@@ -1,14 +1,16 @@
 /* eslint-disable consistent-return */
-const db = require('../../db');
+import { query } from '../../db';
 // Current user information
-const utils = require('./utils');
+import {
+  currentUser, isAdminUser, checkAccountNumber, ifNoAccount,
+} from './utils';
 
 // Deactivate/acivate/draft bank account
 const accountStatus = async (req, res) => {
   const { body: { status }, params: { accountNumber } } = req;
 
   // Getting the current user object
-  const user = await utils.currentUser(req.userId);
+  const user = await currentUser(req.userId);
   if (!user) {
     return res.status(401).json({
       status: 401,
@@ -17,8 +19,8 @@ const accountStatus = async (req, res) => {
   }
 
   // User must be admin to perform the operation
-  if (utils.isAdminUser(user, res)) {
-    return utils.isAdminUser(user, res);
+  if (isAdminUser(user, res)) {
+    return isAdminUser(user, res);
   }
 
   if (!status) {
@@ -43,17 +45,17 @@ const accountStatus = async (req, res) => {
   }
 
   // Check for bank account with the provided account number
-  const accountObj = await utils.checkAccountNumber(accountNumber);
+  const accountObj = await checkAccountNumber(accountNumber);
 
   // Check if account exists
-  if (utils.ifNoAccount(accountObj, res)) {
+  if (ifNoAccount(accountObj, res)) {
     // Account does not exist
-    return utils.ifNoAccount(accountObj, res);
+    return ifNoAccount(accountObj, res);
   }
 
   // Update the account status to active/dormant/draft to deactive
   const sql = 'UPDATE accounts SET status = $1 WHERE accountNumber = $2 returning *';
-  const { rows } = await db.query(sql, [newStatus, accountNumber]);
+  const { rows } = await query(sql, [newStatus, accountNumber]);
 
 
   // Return account details
@@ -63,4 +65,4 @@ const accountStatus = async (req, res) => {
   });
 };
 
-module.exports = accountStatus;
+export default accountStatus;
