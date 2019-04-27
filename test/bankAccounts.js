@@ -46,7 +46,7 @@ describe('USER ACCOUNTS ', () => {
           .send({ type: 'current' })
           .end((error, response) => {
             if (error) done();
-            response.should.have.status(401);
+            response.should.have.status(403);
             response.body.should.be.a('object');
             response.body.should.have.property('error');
             done();

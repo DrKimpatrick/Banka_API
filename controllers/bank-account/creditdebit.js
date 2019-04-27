@@ -124,8 +124,8 @@ exports.debitTransaction = async (req, res) => {
   // Debit bank account
   // User should not request more than the available balance
   if (cash > Number(accountObj.balance)) {
-    return res.status(400).json({
-      status: 400,
+    return res.status(403).json({
+      status: 403,
       error: 'You can not withdraw more than the available balance',
     });
   }

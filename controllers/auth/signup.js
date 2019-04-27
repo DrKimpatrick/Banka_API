@@ -94,8 +94,8 @@ exports.signup = async (req, res) => {
   const query = 'SELECT * FROM users WHERE email = $1';
   const { rows } = await db.query(query, [email]);
   if (rows.length > 0) {
-    return res.status(404).send({
-      status: '400',
+    return res.status(409).send({
+      status: 409,
       message: 'Email already exists, please try another',
     });
   }
