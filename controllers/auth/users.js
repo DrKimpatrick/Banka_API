@@ -1,5 +1,5 @@
 /* eslint-disable consistent-return */
-import { query as _query } from '../../db';
+import db from '../../db';
 import { currentUser } from '../bank-account/utils';
 
 
@@ -22,7 +22,7 @@ const users = async (req, res) => {
   }
 
   const query = 'SELECT * FROM users';
-  const { rows } = await _query(query);
+  const { rows } = await db.query(query);
   const userList = [];
   rows.forEach((row) => {
     const data = {
@@ -37,7 +37,7 @@ const users = async (req, res) => {
   });
   return res.status(200).json({
     status: 200,
-    Users: userList,
+    data: userList,
   });
 };
 

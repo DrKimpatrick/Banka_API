@@ -10,8 +10,6 @@ exports.signup_user_1 = {
   firstName: 'Patrick',
   lastName: 'KImanje',
   password,
-  type: 'client',
-  isAdmin: 'false',
 };
 
 // user with missing fields
@@ -19,8 +17,6 @@ exports.signup_user_2 = {
   firstName: 'Patrick',
   lastName: 'KImanje',
   password,
-  type: 'client',
-  isAdmin: false,
 };
 
 // user supplies invalid user type
@@ -29,8 +25,6 @@ exports.signup_user_3 = {
   firstName: 'Patrick',
   lastName: 'KImanje',
   password,
-  type: 'invalid',
-  isAdmin: false,
 };
 
 // creating user of type staff
@@ -39,8 +33,6 @@ exports.signup_user_4 = {
   firstName: 'Patrick',
   lastName: 'KImanje',
   password,
-  type: 'staff',
-  isAdmin: 'true',
 };
 
 exports.signup_user_5 = {
@@ -63,18 +55,14 @@ exports.signup_user_7 = {
   firstName: 'Patrick',
   lastName: 'KImanje',
   password,
-  type: 'staff',
-  isAdmin: false,
 };
 
 // firstName with special characters
 exports.signup_user_8 = {
   email: 'staff@g.com',
-  firstName: 'Pat%%%%',
+  firstName: 'Pat%%%%##',
   lastName: 'KImanje',
   password,
-  type: 'staff',
-  isAdmin: false,
 };
 
 // latName with special characters
@@ -83,8 +71,6 @@ exports.signup_user_9 = {
   firstName: 'Patrick',
   lastName: 'KImanje%%',
   password,
-  type: 'staff',
-  isAdmin: false,
 };
 
 // Invalid user type
@@ -93,8 +79,6 @@ exports.signup_user_10 = {
   firstName: 'Patrick',
   lastName: 'KImanje',
   password,
-  type: 'staff',
-  isAdmin: 'invalid',
 };
 // User login *************************************
 

@@ -1,5 +1,5 @@
 /* eslint-disable consistent-return */
-import { query as _query } from '../../db';
+import db from '../../db';
 // Current user information
 import { currentUser } from './utils';
 
@@ -23,7 +23,7 @@ const userAccountList = async (req, res) => {
           INNER JOIN accounts AS a
             ON users.id = a.userId 
           WHERE users.id = $1`;
-  const { rows } = await _query(query, [user.id]);
+  const { rows } = await db.query(query, [user.id]);
 
 
   return res.status(200).json({

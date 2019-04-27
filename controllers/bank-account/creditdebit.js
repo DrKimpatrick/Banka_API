@@ -4,7 +4,7 @@ import {
   checkAmount, currentUser, isStaff, checkAccountNumber,
   ifNoAccount, saveTransaction, transactionData,
 } from './utils';
-import { query } from '../../db';
+import db from '../../db';
 // Credit user account
 exports.creditTransaction = async (req, res) => {
   const { params: { accountNumber }, body: { amount } } = req;
@@ -58,7 +58,7 @@ exports.creditTransaction = async (req, res) => {
 
   // Update the account Balance
   const sql = 'UPDATE accounts SET balance = $1 WHERE accountNumber = $2 returning *';
-  await query(sql, [newBalance, accountNumber]);
+  await db.query(sql, [newBalance, accountNumber]);
 
   const cashier = await currentUser(req.userId);
   // save Credit transaction
@@ -134,7 +134,7 @@ exports.debitTransaction = async (req, res) => {
 
   // Update the account Balance
   const sql = 'UPDATE accounts SET balance = $1 WHERE accountNumber = $2 returning *';
-  await query(sql, [newBalance, accountNumber]);
+  await db.query(sql, [newBalance, accountNumber]);
 
   const cashier = await currentUser(req.userId);
   // save Credit transaction

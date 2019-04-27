@@ -1,7 +1,8 @@
+/* eslint-disable consistent-return */
 
 import { hashSync } from 'bcryptjs';
-import { token as _token } from '../../middleware';
-import { query as _query } from '../../db';
+import middleware from '../../middleware';
+import db from '../../db';
 
 
 const checkName = (name, res) => {
@@ -13,7 +14,7 @@ const checkName = (name, res) => {
 
    */
   if (!name.match(/^(?![\s.]+$)[a-zA-Z\s.]*$/)) {
-    res.status(400).json({
+    return res.status(400).json({
       status: 400,
       error: 'Names should not contain special characters',
     });
@@ -23,7 +24,7 @@ const checkName = (name, res) => {
 const checkEmail = (email, res) => {
   // Validate email
   if (!email.match(/^[A-Za-z0-9.+_-]+@[A-Za-z0-9._-]+\.[a-zA-Z]{2,}$/)) {
-    res.status(400).json({
+    return res.status(400).json({
       status: 400,
       error: 'Invalid email format ',
     });
@@ -32,7 +33,7 @@ const checkEmail = (email, res) => {
 
 const checkPassword = (password, res) => {
   if (!password.match(/^(?=.*\d)[0-9a-zA-Z]{8,}$/)) {
-    res.status(400).json({
+    return res.status(400).json({
       status: 400,
       error: 'Weak password, must be at least 8 characters and have at least 1 letter and number',
     });
@@ -91,7 +92,7 @@ exports.signup = async (req, res) => {
 
   // Email should be unique. 1st check if user with the above email already exists
   const query = 'SELECT * FROM users WHERE email = $1';
-  const { rows } = await _query(query, [email]);
+  const { rows } = await db.query(query, [email]);
   if (rows.length > 0) {
     return res.status(404).send({
       status: '400',
@@ -109,13 +110,13 @@ exports.signup = async (req, res) => {
   const values = [data.email, data.firstName,
     data.lastName, data.password];
 
-  const result = await _query(query2, values);
+  const result = await db.query(query2, values);
   const row = result.rows[0];
 
   return res.status(201).send({
     status: 201,
     data: {
-      token: _token(row.id),
+      token: middleware.token(row.id),
       id: row.id,
       firstName: row.firstname,
       lastName: row.lastname,

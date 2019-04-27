@@ -1,5 +1,5 @@
 /* eslint-disable consistent-return */
-import { query as _query } from '../../db';
+import db from '../../db';
 // Current user information
 import { currentUser } from './utils';
 
@@ -26,7 +26,7 @@ const accountDetails = async (req, res) => {
   INNER JOIN accounts as a 
   ON u.id = a.userId
   WHERE accountNumber = $1 AND userId = $2`;
-  const { rows } = await _query(query, [accountNumber, user.id]);
+  const { rows } = await db.query(query, [accountNumber, user.id]);
 
   if (rows.length === 0) {
     //

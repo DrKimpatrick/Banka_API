@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
-const dotenv = require('dotenv');
-const pool = require('../config');
+import dotenv from 'dotenv';
+import pool from '../config';
 
 dotenv.config();
 // import table queries

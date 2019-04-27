@@ -1,5 +1,5 @@
 
-import { verifyToken } from '../middleware';
+import middleware from '../middleware';
 import signup from '../controllers/auth/signup';
 import login from '../controllers/auth/login';
 import creditdebit from '../controllers/bank-account/creditdebit';
@@ -15,6 +15,8 @@ import transaction from '../controllers/bank-account/transactions';
 import accountCategories from '../controllers/bank-account/accountCategory';
 
 const router = require('express').Router();
+
+const { verifyToken } = middleware;
 
 router.route('/auth/signup')
   .post(signup.signup);
@@ -42,7 +44,7 @@ router.route('/users')
 router.route('/user/type')
   .put(verifyToken, userType);
 
-router.route('/user/accounts')
+router.route('/user/accounts') // current user accounts
   .get(verifyToken, userAccountList);
 
 router.route('/accounts/:accountNumber')

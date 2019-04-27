@@ -1,6 +1,6 @@
 /* eslint-disable consistent-return */
 /* eslint-disable no-shadow */
-import { query as _query } from '../../db';
+import db from '../../db';
 import { currentUser } from '../bank-account/utils';
 // Type should be client / staff
 const checkUserType = (userType, res) => {
@@ -19,7 +19,6 @@ const checkUserType = (userType, res) => {
 // change user type by the admin
 const changeUserType = async (req, res) => {
   const { type, isAdmin, email } = req.body;
-
   // Email and Password are required
   if (!email || !isAdmin || !type) {
     return res.status(400).json({
@@ -69,7 +68,7 @@ const changeUserType = async (req, res) => {
 
   // Update the type && isAdmin fields
   const query = 'SELECT * FROM users WHERE email = $1';
-  const { rows } = await _query(query, [email]);
+  const { rows } = await db.query(query, [email]);
   if (rows.length === 0) {
     return res.status(404).send({
       status: 404,
@@ -78,7 +77,7 @@ const changeUserType = async (req, res) => {
   }
 
   const sql = 'UPDATE users SET type = $1, isAdmin = $2 WHERE email = $3 returning *';
-  const response = await _query(sql, [type, isAdminTrue, email]);
+  const response = await db.query(sql, [type, isAdminTrue, email]);
   const row = response.rows[0];
   return res.status(201).send({
     status: 201,

@@ -1,11 +1,10 @@
 /* eslint-disable consistent-return */
-import { query as _query } from '../../db';
+import db from '../../db';
 // Current user information
 import { currentUser, isNotClient } from './utils';
 
 const accountCategories = async (req, res) => {
   const { status } = req.query;
-
   if (!status) {
     return res.status(400).json({
       status: 400,
@@ -48,7 +47,7 @@ const accountCategories = async (req, res) => {
           FROM users AS u
           INNER JOIN accounts AS a
           ON u.id = a.userId WHERE a.status=$1`;
-  const { rows } = await _query(query, [newStatus]);
+  const { rows } = await db.query(query, [newStatus]);
 
   return res.status(200).json({
     status: 200,

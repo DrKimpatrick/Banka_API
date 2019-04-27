@@ -1,5 +1,5 @@
 /* eslint-disable consistent-return */
-import { query as _query } from '../../db';
+import db from '../../db';
 // Current user information
 import { currentUser } from './utils';
 
@@ -16,7 +16,7 @@ exports.transactionsHistory = async (req, res) => {
 
   // check if user has account with this accountNumber
   const query = 'SELECT * FROM accounts WHERE accountNumber = $1 AND userId = $2';
-  const { rows } = await _query(query, [accountNumber, user.id]);
+  const { rows } = await db.query(query, [accountNumber, user.id]);
 
   if (rows.length === 0) {
     return res.status(404).json({
@@ -40,7 +40,7 @@ exports.transactionsHistory = async (req, res) => {
   INNER JOIN transactions as t
   ON a.id = t.account_id
   WHERE accountNumber = $1 AND userId = $2`;
-  const result = await _query(sql, [accountNumber, user.id]);
+  const result = await db.query(sql, [accountNumber, user.id]);
 
   return res.status(200).json({
     status: 200,
@@ -74,7 +74,7 @@ exports.transactionsDetail = async (req, res) => {
     INNER JOIN transactions as t
     ON a.id = t.account_id
     WHERE transactionId = $1 AND userId = $2`;
-  const { rows } = await _query(sql, [transactionId, user.id]);
+  const { rows } = await db.query(sql, [transactionId, user.id]);
   if (rows.length === 0) {
     //
     return res.status(404).json({

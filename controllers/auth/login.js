@@ -1,7 +1,7 @@
 /* eslint-disable consistent-return */
 import bcrypt from 'bcryptjs';
-import { token as _token } from '../../middleware';
-import { query as _query } from '../../db';
+import middleware from '../../middleware';
+import db from '../../db';
 
 
 exports.login = async (req, res) => {
@@ -15,7 +15,7 @@ exports.login = async (req, res) => {
   }
 
   const query = 'SELECT * FROM users WHERE email = $1';
-  const { rows } = await _query(query, [email]);
+  const { rows } = await db.query(query, [email]);
 
   if (!rows[0]) {
     return res.status(401).json({
@@ -36,7 +36,7 @@ exports.login = async (req, res) => {
   return res.status(201).send({
     status: 201,
     data: {
-      token: _token(row.id),
+      token: middleware.token(row.id),
       id: row.id,
       firstName: row.firstname,
       lastName: row.lastname,
