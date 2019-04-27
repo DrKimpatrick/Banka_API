@@ -15,8 +15,8 @@ exports.currentUser = async (id) => {
 exports.isAdminUser = (userData, res) => {
   if (userData) {
     if (userData.isadmin === false) {
-      return res.status(401).json({
-        status: 401,
+      return res.status(403).json({
+        status: 403,
         error: 'Access denied, contact a system admin',
       });
     }
@@ -26,8 +26,8 @@ exports.isAdminUser = (userData, res) => {
 exports.isNotClient = (userData, res) => {
   if (userData) {
     if (userData.type === 'client') {
-      return res.status(401).json({
-        status: 401,
+      return res.status(403).json({
+        status: 403,
         error: 'Access denied, please contact and admin or staff member',
       });
     }
@@ -37,8 +37,8 @@ exports.isNotClient = (userData, res) => {
 exports.isStaff = (userData, res) => {
   if (userData) {
     if (userData.type === 'client' || userData.isadmin === true) {
-      return res.status(401).json({
-        status: 401,
+      return res.status(403).json({
+        status: 403,
         error: 'Access denied, contact a staff member',
       });
     }

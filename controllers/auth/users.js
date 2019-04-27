@@ -15,8 +15,8 @@ const users = async (req, res) => {
   }
   // User should be admin to view user accounts
   if (!user.isadmin) {
-    return res.status(401).json({
-      status: 401,
+    return res.status(403).json({
+      status: 403,
       error: 'Access denied, contact the system admin',
     });
   }

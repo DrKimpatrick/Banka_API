@@ -33,8 +33,8 @@ exports.login = async (req, res) => {
       error: 'Wrong email or password',
     });
   }
-  return res.status(201).send({
-    status: 201,
+  return res.status(200).send({
+    status: 200,
     data: {
       token: middleware.token(row.id),
       id: row.id,

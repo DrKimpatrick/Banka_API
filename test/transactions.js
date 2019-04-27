@@ -60,15 +60,13 @@ describe('TRANSACTION DETAILS', () => {
       .send({ email: 'admin@crest.com', password: 'Kp15712Kp' })
       .end((err, res) => {
         if (err) done();
-        res.should.have.status(201);
-        res.body.should.be.a('object');
         chai.request(app)
           .put('/api/v1/user/type')
           .set('x-access-token', res.body.data.token)
           .send({ type: 'staff', isAdmin: 'false', email: 'staff19023@crest.com' })
           .end((error, resp) => {
             if (error) done();
-            resp.should.have.status(201);
+            resp.should.have.status(200);
             resp.body.should.be.a('object');
             resp.body.should.have.property('data');
             done();
@@ -102,7 +100,6 @@ describe('TRANSACTION DETAILS', () => {
                   .send({ amount: 10000 })
                   .end((err3, resp3) => {
                     if (err3) done();
-                    console.log('------------', resp3.body.data.transactionId);
                     chai.request(app)
                       .get(`/api/v1/transactions/${resp3.body.data.transactionId}`) // Transaction detail
                       .set('x-access-token', res.body.data.token)
