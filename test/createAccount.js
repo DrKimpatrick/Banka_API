@@ -20,8 +20,6 @@ describe('CREATE BANK ACCOUNT ', () => {
       .send({ email: 'client@crest.com', password: 'Kp15712Kp', firstName: 'name' })
       .end((err, res) => {
         if (err) done();
-        res.should.have.status(201);
-        res.body.should.be.a('object');
         chai.request(app)
           .post('/api/v1/accounts')
           .set('x-access-token', res.body.data.token)
@@ -41,8 +39,6 @@ describe('CREATE BANK ACCOUNT ', () => {
       .send({ email: 'client@crest.com', password: 'Kp15712Kp', firstName: 'name' })
       .end((err, res) => {
         if (err) done();
-        res.should.have.status(201);
-        res.body.should.be.a('object');
         chai.request(app)
           .post('/api/v1/accounts')
           .set('x-access-token', res.body.data.token)

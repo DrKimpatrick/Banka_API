@@ -38,7 +38,7 @@ const changeUserType = async (req, res) => {
   // User should be admin to change user type
   if (!user.isadmin) {
     return res.status(401).json({
-      status: 401,
+      status: 403,
       error: 'Access denied, contact the system admin',
     });
   }
@@ -79,8 +79,8 @@ const changeUserType = async (req, res) => {
   const sql = 'UPDATE users SET type = $1, isAdmin = $2 WHERE email = $3 returning *';
   const response = await db.query(sql, [type, isAdminTrue, email]);
   const row = response.rows[0];
-  return res.status(201).send({
-    status: 201,
+  return res.status(200).send({
+    status: 200,
     data: {
       firstName: row.firstname,
       lastName: row.lastname,

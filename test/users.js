@@ -112,7 +112,7 @@ describe('Login Authentication ', () => {
       .send(base.login_user_1)
       .end((error, resp) => {
         if (error) done();
-        resp.should.have.status(201);
+        resp.should.have.status(200);
         resp.body.should.be.a('object');
         resp.body.should.have.property('status');
         resp.body.should.have.property('data');
@@ -134,7 +134,7 @@ describe('Login Authentication ', () => {
 });
 
 
-describe('CHANGE USERR TYPE BY ADMIN', () => {
+describe('CHANGE USER TYPE BY ADMIN', () => {
   before(async () => {
     try {
       await chai
@@ -152,15 +152,13 @@ describe('CHANGE USERR TYPE BY ADMIN', () => {
       .send({ email: 'admin@crest.com', password: 'Kp15712Kp' })
       .end((err, res) => {
         if (err) done();
-        res.should.have.status(201);
-        res.body.should.be.a('object');
         chai.request(app)
           .put('/api/v1/user/type')
           .set('x-access-token', res.body.data.token)
           .send({ type: 'staff', isAdmin: 'false', email: 'client12@crest.com' })
           .end((error, resp) => {
             if (error) done();
-            resp.should.have.status(201);
+            resp.should.have.status(200);
             resp.body.should.be.a('object');
             resp.body.should.have.property('data');
             done();
@@ -174,8 +172,6 @@ describe('CHANGE USERR TYPE BY ADMIN', () => {
       .send({ email: 'admin@crest.com', password: 'Kp15712Kp' })
       .end((err, res) => {
         if (err) done();
-        res.should.have.status(201);
-        res.body.should.be.a('object');
         chai.request(app)
           .put('/api/v1/user/type')
           .set('x-access-token', res.body.data.token)
@@ -195,15 +191,13 @@ describe('CHANGE USERR TYPE BY ADMIN', () => {
       .send({ email: 'admin@crest.com', password: 'Kp15712Kp' })
       .end((err, res) => {
         if (err) done();
-        res.should.have.status(201);
-        res.body.should.be.a('object');
         chai.request(app)
           .put('/api/v1/user/type')
           .set('x-access-token', res.body.data.token)
           .send({ type: 'client', isAdmin: 'false', email: 'client12@crest.com' })
           .end((error, resp) => {
             if (error) done();
-            resp.should.have.status(201);
+            resp.should.have.status(200);
             resp.body.should.be.a('object');
             resp.body.should.have.property('data');
             done();
@@ -229,8 +223,6 @@ describe('RETRIEVE ALL USERS BY ADMIN', () => {
       .send({ email: 'admin@crest.com', password: 'Kp15712Kp' })
       .end((err, res) => {
         if (err) done();
-        res.should.have.status(201);
-        res.body.should.be.a('object');
         chai.request(app)
           .get('/api/v1/users')
           .set('x-access-token', res.body.data.token)
@@ -250,14 +242,12 @@ describe('RETRIEVE ALL USERS BY ADMIN', () => {
       .send({ email: 'client212@crest.com', password: 'Kp15712Kp' })
       .end((err, res) => {
         if (err) done();
-        res.should.have.status(201);
-        res.body.should.be.a('object');
         chai.request(app)
           .get('/api/v1/users')
           .set('x-access-token', res.body.data.token)
           .end((error, resp) => {
             if (error) done();
-            resp.should.have.status(401);
+            resp.should.have.status(403);
             resp.body.should.be.a('object');
             resp.body.should.have.property('error').eql('Access denied, contact the system admin');
             done();
