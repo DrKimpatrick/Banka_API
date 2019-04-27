@@ -9,7 +9,7 @@
     "drop": "babel-node ./models tearDown",
     "start:heroku": "babel-node index.js",
     "heroku-post-build": "npm install",
-    "test": "NODE_ENV=testing npm run drop && NODE_ENV=testing npm run create && NODE_ENV=testing nyc --reporter=html --reporter=text --require @babel/register --require @babel/polyfill mocha test/**/*.js --exit",
+    "test": "NODE_ENV=testing npm run drop && NODE_ENV=testing npm run create && NODE_ENV=testing npm run superuser && NODE_ENV=testing nyc --reporter=html --reporter=text --require @babel/register --require @babel/polyfill mocha test/**/*.js --exit",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
     "lint": "node_modules/.bin/eslint --fix index.js controllers api-routes middleware",
     "create": "babel-node ./models createTables",

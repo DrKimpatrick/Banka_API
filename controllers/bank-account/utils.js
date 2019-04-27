@@ -1,7 +1,7 @@
 /* eslint-disable consistent-return */
 
 // Database connection
-const db = require('../../db');
+import db from '../../db';
 
 // Current user data
 exports.currentUser = async (id) => {

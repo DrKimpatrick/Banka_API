@@ -1,6 +1,6 @@
 /* eslint-disable consistent-return */
 import { currentUser } from './utils';
-import { query as _query } from '../../db';
+import db from '../../db';
 // Generate a bank account number, a nine character number
 const accountGenerator = () => Math.floor(Math.random() * 1000000000);
 
@@ -42,7 +42,7 @@ const createBankAccount = async (req, res) => {
     VALUES ($1, $2, $3) RETURNING *`;
   const values = [newType, accountGenerator(), user.id];
 
-  const { rows } = await _query(query, values);
+  const { rows } = await db.query(query, values);
 
 
   // account response

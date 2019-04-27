@@ -1,5 +1,5 @@
 /* eslint-disable consistent-return */
-import { query as _query } from '../../db';
+import db from '../../db';
 // Current user information
 import { currentUser, isNotClient } from './utils';
 
@@ -30,7 +30,7 @@ exports.accountList = async (req, res) => {
         FROM users AS u
         INNER JOIN accounts AS a
         ON u.id = a.userId `;
-  const { rows } = await _query(query);
+  const { rows } = await db.query(query);
 
   return res.status(200).json({
     status: 200,
@@ -64,7 +64,7 @@ exports.specificUserAccounts = async (req, res) => {
   }
 
   const query = 'SELECT * FROM users WHERE email = $1';
-  const { rows } = await _query(query, [email]);
+  const { rows } = await db.query(query, [email]);
 
   // No user with the email
   if (!rows[0]) {
@@ -84,7 +84,7 @@ exports.specificUserAccounts = async (req, res) => {
             INNER JOIN accounts AS a
               ON users.id = a.userId 
             WHERE users.email = $1`;
-  const result = await _query(query2, [email]);
+  const result = await db.query(query2, [email]);
 
   return res.status(200).json({
     status: 200,

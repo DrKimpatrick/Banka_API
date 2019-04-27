@@ -1,12 +1,12 @@
 import bcrypt from 'bcryptjs';
-import { query as _query } from '../../db';
+import db from '../../db';
 
 
 // Insert a super user in the database
 const createSuperUser = async () => {
   // Email should be unique. 1st check if user with the above email already exists
   const query = 'SELECT * FROM users WHERE email = $1';
-  const { rows } = await _query(query, ['admin@crest.com']);
+  const { rows } = await db.query(query, ['admin@crest.com']);
   // hashpassword
   const hashedPassword = bcrypt.hashSync('Kp15712Kp', 8);
 
@@ -19,7 +19,7 @@ const createSuperUser = async () => {
   const values = ['admin@crest.com', hashedPassword, 'staff', true, 'admin'];
 
   if (rows.length === 0) {
-    await _query(sql, values);
+    await db.query(sql, values);
     // eslint-disable-next-line no-console
     console.log('created a super user');
   }

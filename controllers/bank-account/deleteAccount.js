@@ -1,7 +1,7 @@
 /* eslint-disable consistent-return */
-const db = require('../../db');
+import db from '../../db';
 // Current user information
-const utils = require('./utils');
+import utils from './utils';
 
 // Delete bank account
 const deleteAccount = async (req, res) => {

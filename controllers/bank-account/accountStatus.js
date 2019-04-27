@@ -1,5 +1,5 @@
 /* eslint-disable consistent-return */
-import { query } from '../../db';
+import db from '../../db';
 // Current user information
 import {
   currentUser, isAdminUser, checkAccountNumber, ifNoAccount,
@@ -55,7 +55,7 @@ const accountStatus = async (req, res) => {
 
   // Update the account status to active/dormant/draft to deactive
   const sql = 'UPDATE accounts SET status = $1 WHERE accountNumber = $2 returning *';
-  const { rows } = await query(sql, [newStatus, accountNumber]);
+  const { rows } = await db.query(sql, [newStatus, accountNumber]);
 
 
   // Return account details
