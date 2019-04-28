@@ -1,12 +1,19 @@
 
 import express from 'express';
+import Cors from 'cors';
 import dotenv from 'dotenv';
+import swaggerUi from 'swagger-ui-express';
 import apiRoutes from './api-routes';
+import swaggerDoc from './swagger.json';
 
 dotenv.config();
 
 // Initialize the app
 const app = express();
+
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDoc));
+app.use(Cors());
+
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
